@@ -65,6 +65,10 @@
     "./files": {
       "import": "./dist/files/index.esm.js",
       "require": "./dist/files/index.cjs.js"
+    },
+    "./templateRenderer": {
+      "import": "./dist/templateRenderer/index.esm.js",
+      "require": "./dist/templateRenderer/index.cjs.js"
     }
   },
   "devDependencies": {
