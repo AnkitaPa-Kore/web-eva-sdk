@@ -63,7 +63,7 @@ const ChatInterface = (props) => {
           }
         }
 
-        const Res = await store.dispatch(advanceSearch({ params, payload, userId: state.profile.data.id }))
+        const Res = await store.dispatch(advanceSearch({ params, payload, userId: state.profile?.data?.id }))
         constructQuestionPostCall(Res, qId)
         resIndexRef = 0
       }

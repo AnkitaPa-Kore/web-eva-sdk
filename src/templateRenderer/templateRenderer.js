@@ -6,10 +6,10 @@ import * as TemplateComponents from "./templates";
  * @param {Object} data Message data
  * @returns {HTMLElement}
  */
-export function generateHTMLTemplate(data) {
+export function generateHTMLTemplate(data, assistantIconTemplate=false, userIconTemplate=false) {
 	try {
 		// Render the message to HTML string
-		const html = MessageRenderer.render(data);
+		const html = MessageRenderer.render(data,assistantIconTemplate,userIconTemplate);
 
 		// Create temporary container
 		const container = document.createElement("div");
@@ -42,7 +42,7 @@ export function generateHTMLTemplate(data) {
 export function attachEventListeners(element, data) {
 	// Attach feedback listeners if supported
 	if (MessageRenderer.supportsFeedback(data.templateType)) {
-		const feedbackButtons = element.querySelectorAll(".feedback-btn");
+		const feedbackButtons = element?.querySelectorAll(".feedback-btn");
 		feedbackButtons.forEach((button) => {
 			button.addEventListener("click", (e) => {
 				handleFeedback(e, data);
@@ -69,7 +69,7 @@ export function attachEventListeners(element, data) {
  * @param {Object} data Message data
  */
 export function handleFeedback(event, data) {
-	const value = event.currentTarget.dataset.value;
+	const value = event.currentTarget.dataset.value;element
 	// Emit feedback event
 	const feedbackEvent = new CustomEvent("message-feedback", {
 		detail: {

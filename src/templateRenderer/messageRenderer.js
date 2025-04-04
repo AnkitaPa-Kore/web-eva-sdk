@@ -49,11 +49,13 @@ export function render(data) {
 			content += feedbackTemplate.render(data);
 		}
 
-		return TemplateComponents.wrapTemplate(content, {
-			type: data.templateType,
-			id: data.id,
-			className: data.className,
-		});
+		return content;
+
+		// return TemplateComponents.wrapTemplate(content, {
+		// 	type: data.templateType,
+		// 	id: data.id,
+		// 	className: data.className,
+		// });
 	} catch (error) {
 		console.error("Error rendering message:", error);
 		return genericErrorTemplate.render({
@@ -66,6 +68,7 @@ export function render(data) {
 }
 
 export function renderTemplateContent(data) {
+	let elem = `<div class></div>`;
 	switch (data.templateType) {
 		case "resolve_ambiguity":
 			return ambiguityTemplate.render(data);
