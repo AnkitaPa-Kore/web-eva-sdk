@@ -287,8 +287,11 @@ const TestComp = (props) => {
 							};
 							let html = TemplateRenderer.generateHTMLTemplate(
 								item,
-								assistantIconTemplate,
-								userIconTemplate
+								{
+									assistantIconTemplate,
+									userIconTemplate,
+									loadingText: "Analyzing",
+								}
 							);
 							return (
 								<div

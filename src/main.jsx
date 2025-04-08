@@ -4,7 +4,7 @@ import App from "./App";
 import { initializeSDK } from "./index"; // Adjust the import according to your SDK setup
 
 const getAccessToken =
-	"GlMR8cbkAOwTz0x_x0uy2HMLO-7M52VNrcrUe9rQXXsdpHhPh7UvB0DCm8K4-DGT";
+	"j3JdDL18cf_0HTMl35IAtQw_gaEAOvwjUQJNNzBvq9OTF2vZFiSHo4Se0qcMgGpm";
 initializeSDK({
 	accessToken: getAccessToken,
 	api_url: "https://eva-qa.kore.ai/api/",

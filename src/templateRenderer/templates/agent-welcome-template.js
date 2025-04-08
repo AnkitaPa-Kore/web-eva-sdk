@@ -6,7 +6,7 @@ export function render(item) {
 	// const { agentName, description, item } = data;
 
 	const entirediv = document.createElement("div");
-
+	entirediv.className = "answerCntr";
 	const div1 = document.createElement("div");
 	div1.className = "threadName maxLength";
 	div1.textContent = item?.answer;
@@ -32,7 +32,7 @@ export function render(item) {
 		(utterance, i) => {
 			const chipOne = document.createElement("div");
 			chipOne.className = "chipone";
-			chipOne.id = `awt-${item?.id}`;
+			chipOne.id = `awt-${i}`;
 			// chipOne.onclick = () => InvokeGptAgentTemplate({ item, utterance });
 
 			const leftBlock = document.createElement("div");

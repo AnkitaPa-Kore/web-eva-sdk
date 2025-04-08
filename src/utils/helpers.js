@@ -207,3 +207,14 @@ export const convertTemplateToHtml = (element) => {
 	// Return the HTML string
 	return tempDiv.innerHTML;
 };
+
+export function encodeHtml(text) {
+	text = text?.toString();
+	text = text?.replace(/&nbsp;/g, " ");
+	text = text?.replace(/&amp;/g, "&");
+	text = text?.replace(/&lt;/g, "<");
+	text = text?.replace(/&gt;/g, ">");
+	text = text?.replace(/&quot;/g, '"');
+	text = text?.replace(/&apos;/g, "'");
+	return text;
+}

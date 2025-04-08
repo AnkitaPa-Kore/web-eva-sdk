@@ -8,9 +8,7 @@ import { encodeHtml } from "../utils/helper";
  * @returns {string} HTML string
  */
 export function renderQuestionBubble(data, userIconTemplate = false) {
-	debugger;
 	const { question, timestamp, icon } = data;
-	console.log(userIconTemplate, "dsfcszx");
 	return `
         <div class="message-bubble question">
             <div class="message-content">
@@ -72,10 +70,23 @@ export function renderAnswerBubble(data) {
  * @param {Object} data Loading data
  * @returns {string} HTML string
  */
-export function renderLoading(data = {}, assistantIconTemplate) {
-	const { text = "Thinking...", icon } = data;
-
-	return `<div class="message-bubble loading" >
+export function renderLoading(
+	data = {},
+	assistantIconTemplate,
+	loadingText,
+	userIconTemplate
+) {
+	// const { text = "Thinking...", icon } = data;
+	const text = loadingText || "Thinking...";
+	return ` <div class="message-bubble question">
+                <div class="message-content">
+                    <div class="message-text">${encodeHtml(
+						data?.question
+					)}</div>
+                    ${userIconTemplate ? userIconTemplate : ""}
+                </div>
+            </div>
+            <div class="message-bubble loading" >
                 ${assistantIconTemplate ? assistantIconTemplate : ""}
                 <div class="loading-text">${encodeHtml(text)}</div>   
             </div>`;
@@ -90,10 +101,10 @@ export function renderLoading(data = {}, assistantIconTemplate) {
 export function wrapTemplate(content, data) {
 	const { type, className = "", id } = data;
 	return `<div >
-        <div class="message-container ${type || ""} ${className}" ${
+                <div class="message-container ${type || ""} ${className}" ${
 		id ? `id="${id}"` : ""
 	}>
-        ${content}
+                    ${content}
                 </div >
             </div > `;
 }

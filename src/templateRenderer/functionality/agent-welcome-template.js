@@ -3,7 +3,7 @@ import { InvokeGptAgentTemplate } from "../../chat";
 const AgentWelcomeFunc = (item) => {
 	item?.templateInfo?.suggestions?.[0]?.utterances?.forEach(
 		(utterance, i) => {
-			const chipOne = document.getElementById(`awt-${item?.id}`);
+			const chipOne = document.getElementById(`awt-${i}`);
 			chipOne.onclick = () => InvokeGptAgentTemplate({ item, utterance });
 		}
 	);

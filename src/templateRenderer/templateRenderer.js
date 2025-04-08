@@ -1,3 +1,4 @@
+import { convertTemplateToHtml } from "../utils/helpers.js";
 import MessageRenderer from "./messageRenderer.js";
 import * as TemplateComponents from "./templates";
 
@@ -6,10 +7,23 @@ import * as TemplateComponents from "./templates";
  * @param {Object} data Message data
  * @returns {HTMLElement}
  */
-export function generateHTMLTemplate(data, assistantIconTemplate=false, userIconTemplate=false) {
+export function generateHTMLTemplate(
+	data,
+	{
+		assistantIconTemplate = () => {},
+		userIconTemplate = () => {},
+		loadingText,
+	}
+) {
+	assistantIconTemplate = convertTemplateToHtml(assistantIconTemplate());
+	userIconTemplate = convertTemplateToHtml(userIconTemplate());
 	try {
 		// Render the message to HTML string
-		const html = MessageRenderer.render(data,assistantIconTemplate,userIconTemplate);
+		const html = MessageRenderer.render(data, {
+			assistantIconTemplate,
+			userIconTemplate,
+			loadingText,
+		});
 
 		// Create temporary container
 		const container = document.createElement("div");
@@ -19,7 +33,7 @@ export function generateHTMLTemplate(data, assistantIconTemplate=false, userIcon
 		const messageElement = container.firstChild;
 
 		// Add event listeners if needed
-		attachEventListeners(messageElement, data);
+		// attachEventListeners(messageElement, data);
 
 		return messageElement;
 	} catch (error) {
@@ -69,7 +83,8 @@ export function attachEventListeners(element, data) {
  * @param {Object} data Message data
  */
 export function handleFeedback(event, data) {
-	const value = event.currentTarget.dataset.value;element
+	const value = event.currentTarget.dataset.value;
+	element;
 	// Emit feedback event
 	const feedbackEvent = new CustomEvent("message-feedback", {
 		detail: {
