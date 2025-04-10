@@ -91,6 +91,12 @@ const ChatInterface = (props) => {
       let params = { reqId: generateShortUUID() }
       let payload = {}
       let replaceExistingQsn = false;
+
+      if(arg?.params?.reqId) {
+        params.reqId = arg.params.reqId;
+        replaceExistingQsn = true;
+      }
+
       if(state.activeBoardId) {
         payload.boardId = state.activeBoardId
       }

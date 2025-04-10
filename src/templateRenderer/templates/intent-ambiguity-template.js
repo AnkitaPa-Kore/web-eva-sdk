@@ -1,82 +1,91 @@
 // import { encodeHtml } from "../utils/helper";
+import IntentAmbiguityFunc from "../functionality/intent-ambiguity-template";
 import { encodeHtml } from "../utils/helper";
 import TemplateComponents from "./index";
 
 // import TemplateComponents from "./index";
-
 function render(data) {
-	const { intents, selectedIntent } = data;
+	const ambiguousData = data?.templateInfo?.ambiguous?.find(
+		(ob) => ob?.id === "intent"
+	);
+	const isMultipleAmbiguous =
+		data?.templateInfo?.ambiguous?.[0]?.value?.choices?.length > 1
+			? true
+			: false;
 
-	return `
-        <div class="intent-ambiguity-template">
-            <div class="intent-header">
-                Please select what you'd like to do:
-            </div>
-            ${renderIntents(intents, selectedIntent)}
-            ${renderActions()}
-        </div>
-    `;
-}
+	// function createThreadName(ambiguousData, selectedItem, sendIntent, renderIcons, TickMark, isMultipleAmbiguous, data, AddConnection) {
+	const container = document.createElement("div");
+	container.id = `intent-ambiguity-template-${data?._id}`;
 
-function renderIntents(intents, selectedIntent) {
-	if (!intents?.length) return "";
+	// First thread name div
+	const threadNameDiv1 = document.createElement("div");
+	threadNameDiv1.class = "threadName";
+	threadNameDiv1.textContent = ambiguousData?.label || "";
+	container.appendChild(threadNameDiv1);
 
-	return `
-        <div class="intent-options">
-            ${intents
-				.map(
-					(intent, index) => `
-                <div class="intent-option ${
-					selectedIntent === index ? "selected" : ""
-				}"
-                     data-intent-index="${index}">
-                    <div class="intent-content">
-                        ${
-							intent.icon
-								? `
-                            <div class="intent-icon">
-                                ${TemplateComponents.renderIcon(intent.icon)}
-                            </div>
-                        `
-								: ""
-						}
-                        <div class="intent-details">
-                            <div class="intent-title">${encodeHtml(
-								intent.title
-							)}</div>
-                            ${
-								intent.description
-									? `
-                                <div class="intent-description">${encodeHtml(
-									intent.description
-								)}</div>
-                            `
-									: ""
-							}
-                        </div>
-                    </div>
-                    <div class="intent-select">
-                        ${TemplateComponents.renderIcon("CheckCircle")}
-                    </div>
-                </div>
-            `
-				)
-				.join("")}
-        </div>
-    `;
-}
+	// Second thread name div
+	const threadNameDiv2 = document.createElement("div");
+	threadNameDiv2.class = "threadName";
 
-function renderActions() {
-	return `
-        <div class="intent-actions">
-            <button class="kr-secondary-btn btn-sm" data-action="cancel">
-                Cancel
-            </button>
-            <button class="kr-primary-btn-black btn-sm" data-action="confirm">
-                Proceed
-            </button>
-        </div>
-    `;
+	// Intent group div
+	const intentGroupDiv = document.createElement("div");
+	intentGroupDiv.class = "intentGroup";
+
+	if (ambiguousData?.value?.choices?.length) {
+		ambiguousData.value.choices.forEach((val, i) => {
+			if (val?.connId?.length) {
+				const intentDiv = document.createElement("div");
+				// intentDiv.class = `intent${
+				//  i === selectedItem ? " selected" : ""
+				// }`;
+				intentDiv.setAttribute("key", i);
+				intentDiv.id = `intent-${i}`;
+				// intentDiv.onclick = (e) => sendIntent(e, i, val);
+
+				// Icon span
+				const intIconSpan = document.createElement("img");
+				intIconSpan.class = "intIcon";
+				intIconSpan.src = val?.icon || "";
+				intentDiv.appendChild(intIconSpan);
+
+				// Text span
+				const intTextSpan = document.createElement("span");
+				intTextSpan.class = "intText";
+				intTextSpan.textContent = val?.label || "";
+				intentDiv.appendChild(intTextSpan);
+
+				// Selection span
+				const intSelectionSpan = document.createElement("span");
+				intSelectionSpan.class = "intSelection";
+				// intSelectionSpan.innerHTML = TickMark({
+				//  size: 14,
+				//  color: "#039855",
+				// });
+				intentDiv.appendChild(intSelectionSpan);
+
+				intentGroupDiv.appendChild(intentDiv);
+			} else {
+				// const addConnectionComponent = AddConnection({
+				//     data: val,
+				//     isMultipleAmbiguous: isMultipleAmbiguous,
+				//     questionData: data,
+				// });
+				// intentGroupDiv.appendChild(addConnectionComponent);
+			}
+		});
+	}
+
+	threadNameDiv2.appendChild(intentGroupDiv);
+	container.appendChild(threadNameDiv2);
+
+	let timeout;
+	clearTimeout(timeout);
+	timeout = setTimeout(() => {
+		IntentAmbiguityFunc(data);
+	}, 1000);
+
+	return container.outerHTML;
+	// }
 }
 
 export { render };

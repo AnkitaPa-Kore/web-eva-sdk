@@ -32,7 +32,7 @@ export function render(item) {
 		(utterance, i) => {
 			const chipOne = document.createElement("div");
 			chipOne.className = "chipone";
-			chipOne.id = `awt-${i}`;
+			chipOne.id = `awt-${item?.id}-${i}`;
 			// chipOne.onclick = () => InvokeGptAgentTemplate({ item, utterance });
 
 			const leftBlock = document.createElement("div");
