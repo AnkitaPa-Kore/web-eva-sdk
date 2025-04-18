@@ -78,7 +78,11 @@ const TestComp = (props) => {
 	const onChange = async (event) => {
 		if (event.keyCode === 13 && !event.shiftKey) {
 			event.preventDefault();
-			await chatInterface.current.sendMessageAction(input);
+			let items = Object.values(questions);
+			await chatInterface.current.sendMessage(
+				input,
+				items?.[items?.length - 1]
+			);
 			console.log("working.....");
 			setInput("");
 		}
@@ -313,7 +317,10 @@ const TestComp = (props) => {
 				</div>
 				<button
 					onClick={() =>
-						chatInterface.current.sendMessageAction(input)
+						chatInterface.current.sendMessage(
+							input,
+							items?.[items?.length - 1]
+						)
 					}
 				>
 					Send

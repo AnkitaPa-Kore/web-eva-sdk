@@ -12,9 +12,15 @@ function escapeHTML(str) {
 		.replace(/'/g, "&#039;");
 }
 
-function createConversationHTML(conversation, props) {
+function createConversationHTML(
+	conversation,
+	props,
+	assistantIconTemplate,
+	userIconTemplate
+) {
 	if (
-		conversation?.hasOwnProperty("template_html") ||
+		(conversation?.hasOwnProperty("template_html") &&
+			conversation?.status === "in-progress") ||
 		conversation?.templateType === "hold_conversation"
 	) {
 		return `
@@ -22,55 +28,44 @@ function createConversationHTML(conversation, props) {
         `;
 	}
 
-	if (conversation?.templateType === "search_answer") {
-		if (conversation?.status === "completed" && conversation?.answer) {
+	if (conversation?.status === "completed") {
+		if (conversation?.templateType === "search_answer") {
 			return `
                 <div>
-                    <div>${escapeHTML(conversation?.question)}</div>
-                    <br>
-                    <div>
-                        <input 
-                            type="text" 
-                            value="${escapeHTML(conversation?.answer)}" 
-                            readonly
-                        >
+					<div>
+						${assistantIconTemplate}
+						${escapeHTML(conversation?.question)}
+					</div>
+					<br>
+					<div>
+						${userIconTemplate}
+                       ${escapeHTML(conversation?.answer)}
                     </div>
                 </div>
             `;
+		} else if (conversation?.templateType === "bot_template") {
+			return `
+				<div>
+					${assistantIconTemplate}
+					${conversation?.template_html}
+				</div>
+				<div>
+					${userIconTemplate}
+					${conversation?.answer}
+				</div>
+			`; // add pointer events none
 		}
+	}
 
-		if (props?.status !== "completed") {
+	if (conversation?.status === "in-progress") {
+		if (conversation?.templateType === "search_answer") {
 			return `
-                <div>
-                    <div>${escapeHTML(conversation?.question)}</div>
-                    <input
-                        type="text"
-                        class="bot-input"
-                        placeholder="Enter bot response"
-                        data-message-id="${conversation?.messageId}"
-                    >
-                    <button 
-                        class="send-button" 
-                        data-message-id="${conversation?.messageId}"
-                        ${conversation?.loading ? "disabled" : ""}
-                    >
-                        ${conversation?.loading ? "Sending..." : "Send"}
-                    </button>
-                </div>
-            `;
+					<div>
+						${assistantIconTemplate}
+						${escapeHTML(conversation?.question)}
+					</div>
+				`;
 		}
-		if (props?.status === "completed" && props.answer) {
-			return `
-                <div>
-                    <div>${escapeHTML(props?.question)}</div>
-                    <br>
-                    <div>
-                       ${escapeHTML(props?.answer)}
-                    </div>
-                </div>
-            `;
-		}
-		return `<div>Thread ended</div>`;
 	}
 
 	return "";
@@ -143,7 +138,7 @@ function setupTemplates(botConversation) {
 	}
 }
 
-function renderBotConversation(props) {
+function renderBotConversation(props, assistantIconTemplate, userIconTemplate) {
 	const botConversation = props?.botConversation;
 
 	if (!Object.values(botConversation || {})?.length) {
@@ -151,7 +146,14 @@ function renderBotConversation(props) {
 	}
 
 	const conversationsHTML = Object.values(botConversation)
-		.map((conversation) => createConversationHTML(conversation, props))
+		.map((conversation) =>
+			createConversationHTML(
+				conversation,
+				props,
+				assistantIconTemplate,
+				userIconTemplate
+			)
+		)
 		.join("");
 
 	return `
@@ -162,8 +164,12 @@ function renderBotConversation(props) {
 }
 
 // Main function to be exported
-export function render(props) {
-	const html = renderBotConversation(props);
+export function render(props, assistantIconTemplate, userIconTemplate) {
+	const html = renderBotConversation(
+		props,
+		assistantIconTemplate,
+		userIconTemplate
+	);
 	let timer;
 	timer = setTimeout(() => {
 		setupEventListeners(props?.botConversation, props);

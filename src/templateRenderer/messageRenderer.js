@@ -57,7 +57,7 @@ export function render(
 
 		// Render template content based on type
 		content += customMarkdownRenderer(
-			renderTemplateContent(data, assistantIconTemplate)
+			renderTemplateContent(data, assistantIconTemplate, userIconTemplate)
 		);
 
 		let ele = TemplateComponents.wrapTemplate(content, {
@@ -77,10 +77,21 @@ export function render(
 	}
 }
 
-export function renderTemplateContent(data, assistantIconTemplate) {
+export function renderTemplateContent(
+	data,
+	assistantIconTemplate,
+	userIconTemplate
+) {
 	let htmlTemplate = "";
-	if (data.viewType === "threadView") {
-		htmlTemplate = botConversation.render(data);
+	if (data.viewType === "threadView" || data.botConversation) {
+		htmlTemplate = botConversation.render(
+			data,
+			assistantIconTemplate,
+			userIconTemplate
+		);
+		return `<div class="message-bubble answer"> 
+					<div class="answerCntr">${htmlTemplate}</div>
+				</div>`;
 	} else {
 		switch (data.templateType) {
 			case "resolve_ambiguity":
@@ -148,9 +159,9 @@ export function renderTemplateContent(data, assistantIconTemplate) {
 
 			default:
 				// Handle thread view or conversation
-				if (data.thread || data.viewType === "threadView") {
-					htmlTemplate = renderBotConversation(data);
-				}
+				// if (data.thread || data.viewType === "threadView") {
+				// 	htmlTemplate = renderBotConversation(data);
+				// }
 				console.warn(`Unknown template type: ${data.templateType}`);
 				htmlTemplate = TemplateComponents.renderAnswerBubble(data);
 		}

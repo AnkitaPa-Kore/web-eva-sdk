@@ -118,12 +118,38 @@ export const constructQuestionPostCall = (data, qId) => {
 			//     MenuOptions(data?.payload)
 			// }, 1000);
 		}
-		if (!question?.botConversation) {
-			question.botConversation = {};
-			question.parentMessage = data?.payload;
-			data?.payload?.thread?.messages?.map((message) => {
-				question.botConversation[message?.messageId] = message;
-			});
+		if (Object.values(data?.payload?.thread)?.length > 0) {
+			if (!question?.botConversation) {
+				question.botConversation = {};
+				question.parentMessage = data?.payload;
+				data?.payload?.thread?.messages?.map((message) => {
+					question.botConversation[message?.messageId] = message;
+				});
+			} else {
+				if (data?.payload?.thread?.nextMessages?.length) {
+					// question = updatedQuestions?.[currentQuestion]
+					question.botConversation[data?.payload?.messageId].status =
+						data?.payload?.status;
+					question.botConversation[data?.payload?.messageId].answer =
+						data?.payload?.answer;
+					data?.payload?.thread?.nextMessages?.map((message) => {
+						question.botConversation[message?.messageId] = message;
+					});
+					if (
+						data?.payload?.thread?.nextMessages[0]?.status ===
+							"completed" &&
+						data?.payload?.thread?.parentMessage?.status ===
+							"completed"
+					) {
+						question.parentMessage =
+							data?.payload?.thread?.parentMessage;
+						// question.collapseBotConversation = true
+						// updateState({
+						//     isBotRunning: false
+						// })
+					}
+				}
+			}
 		}
 	}
 
