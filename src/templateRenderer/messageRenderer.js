@@ -19,6 +19,9 @@ import { encodeHtml } from "./utils/helper";
 import { convertTemplateToHtml } from "../utils/helpers";
 import botConversation from "./templates/bot-conversation";
 import customMarkdownRenderer from "./utils/customMarkdownRenderer";
+import * as itemsAmbiguityTemplate from "./templates/items-ambiguity-template";
+import AnsFromChip from "./templates/ansFromChip";
+
 export function render(
 	data,
 	{ assistantIconTemplate, userIconTemplate, loadingText }
@@ -48,7 +51,10 @@ export function render(
 		let content = "";
 
 		// Add question bubble if needed
-		if (data.question && shouldShowQuestion(data.templateType)) {
+		if (
+			data.question &&
+			shouldShowQuestion(data.templateType, data.botConversation)
+		) {
 			content += TemplateComponents.renderQuestionBubble(
 				data,
 				userIconTemplate
@@ -56,10 +62,27 @@ export function render(
 		}
 
 		// Render template content based on type
-		content += customMarkdownRenderer(
-			renderTemplateContent(data, assistantIconTemplate, userIconTemplate)
-		);
-
+		if (data.botConversation || data.viewType === "threadView") {
+			content += renderTemplateContent(
+				data,
+				assistantIconTemplate,
+				userIconTemplate,
+				loadingText
+			);
+		} else {
+			content += customMarkdownRenderer(
+				renderTemplateContent(
+					data,
+					assistantIconTemplate,
+					userIconTemplate,
+					loadingText
+				)
+			);
+		}
+		if (data.sources?.length) {
+			let chip = AnsFromChip({ item: data });
+			content += chip;
+		}
 		let ele = TemplateComponents.wrapTemplate(content, {
 			type: data.templateType,
 			id: data.id,
@@ -80,14 +103,16 @@ export function render(
 export function renderTemplateContent(
 	data,
 	assistantIconTemplate,
-	userIconTemplate
+	userIconTemplate,
+	loadingText
 ) {
 	let htmlTemplate = "";
 	if (data.viewType === "threadView" || data.botConversation) {
 		htmlTemplate = botConversation.render(
 			data,
 			assistantIconTemplate,
-			userIconTemplate
+			userIconTemplate,
+			loadingText
 		);
 		return `<div class="message-bubble answer"> 
 					<div class="answerCntr">${htmlTemplate}</div>
@@ -156,6 +181,9 @@ export function renderTemplateContent(
 			case "hold_conversation":
 				htmlTemplate = holdConversation.render(data);
 				break;
+			case "items_ambiguity_template":
+				htmlTemplate = itemsAmbiguityTemplate.render(data);
+				break;
 
 			default:
 				// Handle thread view or conversation
@@ -215,13 +243,14 @@ export function renderBotConversation(data) {
 	// + TemplateComponents.renderBotConversation(data);
 }
 
-export function shouldShowQuestion(templateType) {
+export function shouldShowQuestion(templateType, bot) {
 	const noQuestionTemplates = [
 		"hold_conversation",
 		"error_message",
 		"agent_welcome",
 		"generic_error",
 	];
+	// if (bot && templateType === "search_answer") return false;
 	return !noQuestionTemplates.includes(templateType);
 }
 

@@ -1,6 +1,9 @@
 // import BotConversation from "../chat/botAgent/getBotConversation.js"
 import { isEmpty } from "lodash";
 import BotConversation from "../../chat/botAgent/getBotConversation";
+import TemplateComponents from "./index";
+import { encodeHtml } from "../../utils/helpers";
+import customMarkdownRenderer from "../utils/customMarkdownRenderer";
 
 function escapeHTML(str) {
 	if (!str) return "";
@@ -12,59 +15,82 @@ function escapeHTML(str) {
 		.replace(/'/g, "&#039;");
 }
 
+function renderUserQuestion(question, userIconTemplate) {
+	return `<div class="message-bubble question">
+				<div class="message-content">
+					<div class="message-text">${encodeHtml(question)}</div>
+					${userIconTemplate ? userIconTemplate : ""}
+				</div>
+			</div>`;
+}
+
+function renderAssistantQuestion(question, assistantIconTemplate) {
+	return `<div>
+				${assistantIconTemplate}
+				${customMarkdownRenderer(escapeHTML(question))}
+			</div>`;
+}
+
 function createConversationHTML(
 	conversation,
 	props,
 	assistantIconTemplate,
-	userIconTemplate
+	userIconTemplate,
+	loadingText
 ) {
 	if (
 		(conversation?.hasOwnProperty("template_html") &&
 			conversation?.status === "in-progress") ||
 		conversation?.templateType === "hold_conversation"
 	) {
-		return `
+		return customMarkdownRenderer(`
             <div class="botTemplate-${conversation?.messageId}"></div>
-        `;
+        `);
 	}
 
-	if (conversation?.status === "completed") {
+	if (conversation?.status === "in-progress") {
+		let content;
+
+		if (conversation?.templateType === "search_answer") {
+			content = renderAssistantQuestion(
+				conversation?.question,
+				assistantIconTemplate
+			);
+			if (conversation?.answer) {
+				content += `<br/>`;
+				content += renderUserQuestion(
+					conversation?.answer,
+					userIconTemplate
+				);
+				content += `<br/>`;
+			}
+		}
+		if (conversation?.loading) {
+			content += `<div class="message-bubble loading" >
+					${assistantIconTemplate ? assistantIconTemplate : ""}
+				<div class="loading-text">${encodeHtml(loadingText)}</div>   
+			</div>`;
+		}
+		return content;
+	} else {
 		if (conversation?.templateType === "search_answer") {
 			return `
-                <div>
-					<div>
-						${assistantIconTemplate}
-						${escapeHTML(conversation?.question)}
-					</div>
-					<br>
-					<div>
-						${userIconTemplate}
-                       ${escapeHTML(conversation?.answer)}
-                    </div>
+                <div class="completed">
+					${renderAssistantQuestion(conversation?.question, assistantIconTemplate)}
+					<br/>
+					${renderUserQuestion(conversation?.answer, userIconTemplate)}
+					<br/>
                 </div>
             `;
 		} else if (conversation?.templateType === "bot_template") {
 			return `
 				<div>
-					${assistantIconTemplate}
-					${conversation?.template_html}
-				</div>
-				<div>
-					${userIconTemplate}
-					${conversation?.answer}
+					${renderAssistantQuestion(conversation?.template_html, assistantIconTemplate)}
+					<br/>
+					${renderUserQuestion(conversation?.answer, userIconTemplate)}
+					<br/>
 				</div>
 			`; // add pointer events none
-		}
-	}
-
-	if (conversation?.status === "in-progress") {
-		if (conversation?.templateType === "search_answer") {
-			return `
-					<div>
-						${assistantIconTemplate}
-						${escapeHTML(conversation?.question)}
-					</div>
-				`;
 		}
 	}
 
@@ -138,7 +164,12 @@ function setupTemplates(botConversation) {
 	}
 }
 
-function renderBotConversation(props, assistantIconTemplate, userIconTemplate) {
+function renderBotConversation(
+	props,
+	assistantIconTemplate,
+	userIconTemplate,
+	loadingText
+) {
 	const botConversation = props?.botConversation;
 
 	if (!Object.values(botConversation || {})?.length) {
@@ -151,7 +182,8 @@ function renderBotConversation(props, assistantIconTemplate, userIconTemplate) {
 				conversation,
 				props,
 				assistantIconTemplate,
-				userIconTemplate
+				userIconTemplate,
+				loadingText
 			)
 		)
 		.join("");
@@ -164,11 +196,17 @@ function renderBotConversation(props, assistantIconTemplate, userIconTemplate) {
 }
 
 // Main function to be exported
-export function render(props, assistantIconTemplate, userIconTemplate) {
+export function render(
+	props,
+	assistantIconTemplate,
+	userIconTemplate,
+	loadingText
+) {
 	const html = renderBotConversation(
 		props,
 		assistantIconTemplate,
-		userIconTemplate
+		userIconTemplate,
+		loadingText
 	);
 	let timer;
 	timer = setTimeout(() => {

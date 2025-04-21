@@ -118,7 +118,7 @@ export const constructQuestionPostCall = (data, qId) => {
 			//     MenuOptions(data?.payload)
 			// }, 1000);
 		}
-		if (Object.values(data?.payload?.thread)?.length > 0) {
+		if (Object.values(data?.payload?.thread || {})?.length > 0) {
 			if (!question?.botConversation) {
 				question.botConversation = {};
 				question.parentMessage = data?.payload;
@@ -136,13 +136,12 @@ export const constructQuestionPostCall = (data, qId) => {
 						question.botConversation[message?.messageId] = message;
 					});
 					if (
-						data?.payload?.thread?.nextMessages[0]?.status ===
-							"completed" &&
 						data?.payload?.thread?.parentMessage?.status ===
-							"completed"
+						"completed"
 					) {
 						question.parentMessage =
 							data?.payload?.thread?.parentMessage;
+						question.status = "completed";
 						// question.collapseBotConversation = true
 						// updateState({
 						//     isBotRunning: false
@@ -232,7 +231,9 @@ export const constructQuestionPostCall = (data, qId) => {
 			answer: terminatedAnswerResponse,
 		};
 	} else {
-		question = { ...question, ...data?.payload };
+		if (data?.meta?.arg?.params?.from !== "botAgent") {
+			question = { ...question, ...data?.payload };
+		}
 	}
 
 	// let context;

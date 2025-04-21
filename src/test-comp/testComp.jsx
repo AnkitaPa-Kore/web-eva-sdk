@@ -297,6 +297,7 @@ const TestComp = (props) => {
 									loadingText: "Analyzing",
 								}
 							);
+							console.log(html);
 							return (
 								<div
 									dangerouslySetInnerHTML={{
