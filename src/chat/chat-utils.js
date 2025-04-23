@@ -22,7 +22,7 @@ export const constructQuestionInitial = (args) => {
 	let uniqueMsgId = args?.reqId;
 	const questions = cloneDeep(store.getState().global.questions);
 
-	if (args?.replaceExistingQsn) {
+	if (args?.replaceExistingQsn && !args?.reqId) {
 		uniqueMsgId = getCidByMessageId(questions, args?.messageId);
 	}
 

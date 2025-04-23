@@ -55,7 +55,7 @@ const ChatInterface = (props) => {
 
 	const sendMessageAction = async (value) => {
 		if (value) {
-			const { enabledAgents, selectedContext } = state;
+			const { allAgents, selectedContext } = state;
 			let params = { reqId: generateShortUUID() };
 			let payload = { question: value };
 			if (state.activeBoardId) {
@@ -67,7 +67,7 @@ const ChatInterface = (props) => {
 			const qId = constructQuestionInitial({ ...params, ...payload });
 
 			if (!isEmpty(selectedContext?.data)) {
-				let _agents = cloneDeep(enabledAgents);
+				let _agents = cloneDeep(allAgents?.data?.agents);
 				let isAgentSetAsSource = _agents.find(
 					(ag) =>
 						ag.id === selectedContext?.data?.sources?.[0]?.source
@@ -324,7 +324,7 @@ const ChatInterface = (props) => {
 	 */
 	const sendMessage = (input, question) => {
 		// Check if this is a bot conversation
-		if (question?.botConversation && question.status !== "completed") {
+		if (question?.botConversation) {
 			// Get the conversation which is in-progress
 			const conversation = Object.values(question?.botConversation)?.find(
 				(c) => c?.status === "in-progress"
