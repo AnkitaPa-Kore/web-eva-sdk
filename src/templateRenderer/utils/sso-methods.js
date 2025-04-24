@@ -44,7 +44,7 @@ export default class SSOMethods {
 		this.config = config;
 		this.details = details;
 		this.apiurl = window.sdkConfig.api_url || "";
-		let a = "https://inc-eva.kore.ai";
+		let a = "https://eva-qa.kore.ai";
 		let b = "https://dev.kore.ai";
 		const popupWinWidth = 800,
 			popupWinHeight = 500,
