@@ -43,6 +43,7 @@ export function generateHTMLTemplate(
 		errorContainer.innerHTML = TemplateComponents.renderError({
 			message: "Failed to generate message",
 			code: "DOM_ERROR",
+			assistantIconTemplate,
 		});
 		return errorContainer.firstChild;
 	}

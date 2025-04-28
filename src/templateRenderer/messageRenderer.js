@@ -42,10 +42,13 @@ export function render(
 
 		// Handle error state
 		if (data.error) {
-			return TemplateComponents.wrapTemplate(errorMessage.render(data), {
-				type: "error",
-				id: data.id,
-			});
+			return TemplateComponents.wrapTemplate(
+				errorMessage.render(data, assistantIconTemplate),
+				{
+					type: "error",
+					id: data.id,
+				}
+			);
 		}
 
 		let content = "";

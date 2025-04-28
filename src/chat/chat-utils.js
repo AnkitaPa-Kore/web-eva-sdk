@@ -6,6 +6,7 @@ import {
 	setSelectedContext,
 	setErrorState,
 	setAllHistory,
+	setQuickActions,
 } from "../redux/globalSlice";
 import store from "../redux/store";
 import { cloneDeep } from "lodash";
@@ -73,6 +74,9 @@ export const constructQuestionPostCall = (data, qId) => {
 	let question = questions?.[qId];
 	delete question?.loading;
 
+	if (data?.error) {
+		question.error = true;
+	}
 	if (!activeBoardId) {
 		store.dispatch(
 			fetchHistory({ deleteLoader: true, params: { limit: 10 } })
@@ -103,17 +107,18 @@ export const constructQuestionPostCall = (data, qId) => {
 				multiResponseData,
 				data?.payload
 			);
-			question.template_html = gptFormConstructedData.outerHTML;
-			setTimeout(() => {
-				gptFormFunctionality(multiResponseData, data?.payload);
-			}, 1000);
+			//
 		}
 	}
+	// question.template_html = gptFormConstructedData.outerHTML;
+	// setTimeout(() => {
+	// 	gptFormFunctionality(multiResponseData, data?.payload);
+	// }, 1000);
 
 	if (data?.payload?.templateType === chatTemplateTypes.SEARCH_ANSWER) {
 		if (data?.payload?.sources?.length > 0) {
-			const ansFromChipData = AnswerFromChip({ item: data?.payload });
-			question.answerFrom_html = ansFromChipData.outerHTML;
+			// const ansFromChipData = AnswerFromChip({ item: data?.payload });
+			// question.answerFrom_html = ansFromChipData.outerHTML;
 			// setTimeout(() => {
 			//     MenuOptions(data?.payload)
 			// }, 1000);
@@ -155,6 +160,12 @@ export const constructQuestionPostCall = (data, qId) => {
 	if (data?.payload?.queryExhaustionInfo?.queryLimitExhausted) {
 		question.queryExhaustionInfo = data?.payload?.queryExhaustionInfo;
 		store.dispatch(setErrorState(data?.payload?.queryExhaustionInfo));
+	}
+
+	if (data?.payload?.quickactions) {
+		store.dispatch(setQuickActions(data?.payload?.quickactions));
+	} else {
+		store.dispatch(setQuickActions([]));
 	}
 
 	// if(data?.params?.arg?.retry) {

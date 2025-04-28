@@ -369,6 +369,12 @@ function getTime(time) {
 		ampm;
 	return strTime.replace(/^0+/, "");
 }
+export const highlightQuotedText = (input) => {
+	return input.replace(/"([^"]+)"/g, (match, p1) => {
+		return `"​<span class="highlightedText">${p1}</span>"`;
+	});
+};
+
 // return {
 // 	validateInput,
 // 	encodeHtml,
