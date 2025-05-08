@@ -24,6 +24,7 @@ import {
 } from "../utils/helpers";
 import { cloneDeep, isEmpty } from "lodash";
 import BotConversation from "./botAgent/getBotConversation";
+import { sessionItemHandler } from "../Attachments/createContext";
 
 const ChatInterface = (props) => {
 	let state = store.getState().global,
@@ -346,6 +347,22 @@ const ChatInterface = (props) => {
 		}
 	};
 
+	const setAgentContext = (agent) => {
+		const agentDetails = {
+			name: agent?.name,
+			docId: agent?.id,
+			source: agent?.id,
+			title: agent?.name,
+			icon: agent?.icon,
+			isAgent: true,
+		};
+		sessionItemHandler({
+			item: agentDetails,
+			invokeAgent: true,
+			type: "agent",
+		});
+	};
+
 	return {
 		subscribe,
 		sendMessageAction,
@@ -360,6 +377,7 @@ const ChatInterface = (props) => {
 		enableContextByFollowupContext,
 		clearErrorState,
 		sendMessage,
+		setAgentContext,
 	};
 };
 

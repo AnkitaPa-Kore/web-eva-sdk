@@ -21,6 +21,7 @@ import botConversation from "./templates/bot-conversation";
 import customMarkdownRenderer from "./utils/customMarkdownRenderer";
 import * as itemsAmbiguityTemplate from "./templates/items-ambiguity-template";
 import AnsFromChip from "./templates/ansFromChip";
+import DOMPurify from "dompurify";
 
 export function render(
 	data,
@@ -66,11 +67,13 @@ export function render(
 
 		// Render template content based on type
 		if (data.botConversation || data.viewType === "threadView") {
-			content += renderTemplateContent(
-				data,
-				assistantIconTemplate,
-				userIconTemplate,
-				loadingText
+			content += DOMPurify.sanitize(
+				renderTemplateContent(
+					data,
+					assistantIconTemplate,
+					userIconTemplate,
+					loadingText
+				)
 			);
 		} else {
 			content += customMarkdownRenderer(
