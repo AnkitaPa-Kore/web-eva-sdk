@@ -132,6 +132,8 @@ const ChatInterface = (props) => {
 	};
 
 	const initiateChatConversationAction = async (arg) => {
+		const { enabledAgents, selectedContext } = state;
+
 		state = store.getState().global;
 		let params = { reqId: generateShortUUID() };
 		let payload = {};
@@ -163,18 +165,69 @@ const ChatInterface = (props) => {
 			payload.customData = state.customData;
 		}
 
-		const qId = constructQuestionInitial({
-			...params,
-			...payload,
-			replaceExistingQsn,
-		});
+		let qId = null;
+		if (arg?.multiIntentExecution) {
+			qId = constructQuestionInitial({
+				...arg?.params,
+				...arg?.payload,
+				multiIntentExecution: true,
+			});
+		} else {
+			qId = constructQuestionInitial({
+				...params,
+				...payload,
+				replaceExistingQsn,
+			});
+		}
+
+		if (arg?.multiIntentExecution) {
+			// params.qId = arg?.params?.stepId;
+		} else {
+			if (!isEmpty(selectedContext?.data)) {
+				let _agents = cloneDeep(enabledAgents);
+				let isAgentSetAsSource = _agents.find(
+					(ag) =>
+						ag.id === selectedContext?.data?.sources?.[0]?.source
+				);
+				let isAgent = isAgentSetAsSource ? "agent" : null;
+				if (isAgent) {
+					// when setted context is an agent
+					payload.context = {
+						sources: [
+							selectedContext?.data?.context ||
+								selectedContext?.data?.sources?.[0],
+						],
+					};
+					if (selectedContext?.data?.messageId) {
+						payload.contextParams = {
+							messageId: selectedContext?.data?.messageId,
+						};
+					}
+					/*writing especially for botAgent, will remove this once search session api gives the context data, when we click on askFollowup after bot completion */
+					if (selectedContext?.data?.sessionId) {
+						payload.context.sessionId =
+							selectedContext?.data?.sessionId;
+					}
+				} else {
+					// when setted context is an attachment
+					payload.context = {
+						sessionId: selectedContext?.data?.sessionId,
+					};
+				}
+			}
+		}
 
 		const Res = await store.dispatch(
-			advanceSearch({ params, payload, userId: state?.profile?.data?.id })
+			advanceSearch({
+				params,
+				payload,
+				userId: state?.profile?.data?.id,
+				multiIntentExecution: arg?.multiIntentExecution,
+			})
 		);
 		/*
-      below condition triggers when templatetype is gpt_form_template and user doesnt have any input fields to enter, so application needs to make advancesearch api call with {} formData, as per EVA
-      */
+	  below condition triggers when templatetype is gpt_form_template and user doesnt have any input fields to enter, so application needs to make advancesearch api call with {} formData, as per EVA
+	  */
 		if (
 			Res?.payload?.templateType === "gpt_form_template" &&
 			Res?.payload?.content?.formFields?.inputFields?.length === 0
@@ -205,7 +258,12 @@ const ChatInterface = (props) => {
 		if (!item?.templateInfo?.suggestions?.[0]?.comingSoon) {
 			let payload = {};
 			let context = arg?.item?.context;
-			payload.context = { ...context, sources: item?.sources };
+			payload.context = {
+				...context,
+				sources: item?.sources,
+				isAgent: true,
+			};
+			payload.source = item?.sources?.[0]?.source;
 			payload.question = arg.utterance.label;
 			initiateChatConversationAction({ payload });
 		}

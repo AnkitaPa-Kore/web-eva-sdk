@@ -31,11 +31,11 @@ export function render(item) {
 
 	const html = `
 		<div class="answerCntr">
-			<div class="threadName maxLength">${item?.answer}</div>
+			<div class="threadName maxLength">${item?.answer || ""}</div>
 			<div class="threadName maxLength">
 				<div class="Answerschip msutteranceChip">
 					<div class="ansdocwrap">
-						<div class="chipheadertype">${suggestions?.title}</div>
+						<div class="chipheadertype">${suggestions?.title || ""}</div>
 					</div>
 					<div class="mulanschip">
 						${utteranceHtml}
