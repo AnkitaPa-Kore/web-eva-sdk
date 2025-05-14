@@ -29,7 +29,7 @@ function renderUserQuestion(question, userIconTemplate) {
 
 function renderAssistantQuestion(question, assistantIconTemplate) {
 	if (question) {
-		return `<div>
+		return `<div class="bc-question-wrapper">
 					${assistantIconTemplate}
 					${customMarkdownRenderer(escapeHTML(question))}
 				</div>`;
