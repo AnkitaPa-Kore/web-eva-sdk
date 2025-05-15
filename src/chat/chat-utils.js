@@ -93,7 +93,7 @@ export const constructQuestionPostCall = (data, qId) => {
 	const activeBoardId = state.activeBoardId;
 
 	// let followupFromSuggestionModal = data?.params?.suggestionContext;
-	let question = questions?.[qId];
+	let question = questions?.[qId] || {};
 	delete question?.loading;
 
 	if (data?.error) {

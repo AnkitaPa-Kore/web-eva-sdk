@@ -195,12 +195,35 @@ const BotConversation = (args) => {
 				userId: state?.profile?.data?.id || data?.userId,
 			})
 		);
-		constructQuestionPostCall(res, data?.cId);
+		let id = getIdFromQuestions(data?.cId);
+		constructQuestionPostCall(res, id);
+	};
+
+	const getIdFromQuestions = (reqId) => {
+		const questions = state?.questions;
+		let qs = Object.values(questions || {});
+		let currentQuestion;
+		if (qs?.[qs?.length - 1]?.historicalData) {
+			currentQuestion = qs?.filter((q) => q?.reqId === reqId)?.[0];
+			return currentQuestion?.id;
+		} else {
+			currentQuestion = questions[reqId];
+			return currentQuestion?.reqId;
+		}
 	};
 
 	const addLoadingStateToCurrentQuestion = (reqId, messageId, input) => {
+		let id;
 		let questions = cloneDeep(state?.questions);
-		let currentQuestion = questions[reqId];
+		let qs = Object.values(questions || {});
+		let currentQuestion;
+		if (qs?.[qs?.length - 1]?.historicalData) {
+			currentQuestion = qs?.filter((q) => q?.reqId === reqId)?.[0];
+			id = currentQuestion?.id;
+		} else {
+			currentQuestion = questions[reqId];
+			id = currentQuestion?.reqId;
+		}
 		if (currentQuestion) {
 			let botConversation = currentQuestion?.botConversation;
 			if (botConversation) {
@@ -211,7 +234,7 @@ const BotConversation = (args) => {
 					console.log("added loading state: ", currentBotQuestion);
 					botConversation[messageId] = currentBotQuestion;
 					currentQuestion.botConversation = botConversation;
-					questions[reqId] = currentQuestion;
+					questions[id] = currentQuestion;
 					store.dispatch(updateChatData(questions));
 				}
 			}

@@ -383,20 +383,28 @@ const ChatInterface = (props) => {
 	 *    to process the message through the regular chat flow
 	 */
 	const sendMessage = (input, question) => {
+		const state = store.getState().global;
+		const { selectedContext } = state;
+
 		// Check if this is a bot conversation
 		if (question?.botConversation) {
 			// Get the conversation which is in-progress
 			const conversation = Object.values(question?.botConversation)?.find(
 				(c) => c?.status === "in-progress"
 			);
-
 			// Prepare payload for bot conversation
 			const payload = {
 				cId: question?.cId || question?.reqId, // Use conversation ID or request ID
 				input: input, // User's input message
-				context: question?.context, // Conversation context
+
 				messageId: conversation?.messageId, // Message identifier
 			};
+			if (question?.status === "threadRunning") {
+				payload.context = question.context;
+			} else if (selectedContext) {
+				payload.context = selectedContext;
+			}
+			// context: question?.context, // Conversation context
 			// Submit the response to the bot conversation system
 			BotConversation().submitBotResponse(payload);
 		} else {
